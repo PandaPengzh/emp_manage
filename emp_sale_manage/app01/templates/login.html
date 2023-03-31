@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <style>
+        span {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body"></div>
+    <div class="grad"></div>
+    <div class="header">
+        <div>Site<span>Random</span></div>
+    </div>
+    <br>
+    <div class="login" >
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.username }}<br>
+                <span style="color:red;">{{form.username.errors.0}}</span>
+            </div>
+            <div class="form-group">
+                {{ form.password }}<br>
+                <span style="color:red;">{{form.password.errors.0}}</span>
+            </div>
+            <div class="form-group" style="margin-top: 10px; position: relative;" >
+                    {{ form.code }}
+                    <br>
+                    <span style="color: red;">{{ form.code.errors.0 }}</span>
+                    <div style="position: absolute; top: 9px; left: 275px;">
+                        <img id="image_code" src='/image/code/' style="width: 125px;">
+                    </div>
+            </div>
+            <button type="submit" id="btn1">login</button>
+        </form>
+    </div>
+    
+</body>
+
+
+
+
+
+</html>

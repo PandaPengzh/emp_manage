@@ -1,0 +1,57 @@
+{% extends 'layout.html' %} 
+{% load static %}
+
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+{% endblock %}
+
+
+
+{% block content %}
+<!-- 面板 + 表单 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> 添加员工
+        </div>
+        <div class="panel-body">
+            <form method="post" action="http://127.0.0.1:8000/user/modelform/add/" novalidate>
+                {% csrf_token %}
+                <!-- 校验 循环 -->
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">{{ field.label }}</label> {{ field }}
+                    <!-- 错误信息 -->
+                    <span style="color:red;">{{ field.errors.0 }}</span>
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block js %}
+    <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+
+
+    <!-- datepicker插件的使用 -->
+    <script>
+        $(function(){
+            $('#id_create_time').datepicker({
+                format:'yyyy-mm-dd',
+                startDate:'0',
+                language:'zh-CN',
+                autoclose:true
+            })
+        })
+    </script>
+{% endblock %}
+
+
+<!--  {{ form.name.label }} : {{ form.name }} {{ form.password.label }}:{{ form.password }} {{ form.age.label }} :{{ form.age }} -->

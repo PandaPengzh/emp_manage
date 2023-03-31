@@ -1,0 +1,17 @@
+{% extends 'layout.html' %} {% block content %}
+<!-- 面板 + 表单 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form method="post" action="http://127.0.0.1:8000/depart/{{ row_object.id }}/edit/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">修改部门</label>
+                    <input type="text" name="title" class="form-control" id="exampleInputEmail1" value="{{ row_object.title }}">
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

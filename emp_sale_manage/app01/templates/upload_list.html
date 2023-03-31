@@ -1,0 +1,59 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="container">
+    <div style="margin-bottom:10px;">
+        <a href="http://127.0.0.1:8000/upload/add/" class="btn btn-success">上传客户</a>
+    </div>
+
+    <!-- 表格 -->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> 客户列表
+        </div>
+
+        <!-- Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>年龄</th>
+                    <th>头像</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 模板语法 循环遍历数据库 -->
+                {% for obj in queryset %}
+
+                <tr>
+                    <th scope="row">{{ obj.id }}</th>
+                    <td>{{ obj.name }}</td>
+                    <td>{{ obj.age }}</td>
+                    <td><img src="http://127.0.0.1:8000/{{ obj.img }}" style="width:80px; height: 60px;"></td>
+                    <td>
+                        <a href="http://127.0.0.1:8000/upload/{{obj.id}}/edit/" class="btn btn-primary btn-xs">编辑</a>
+                        <a href="http://127.0.0.1:8000/upload/{{obj.id}}/delete/" class='btn btn-danger btn-xs'>删除</a>
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+     <!-- 分页导航 -->
+     <nav aria-label="Page navigation">
+        <form method="get">
+            <ul class="pagination" style="margin: 50px 300px;">
+                {{ page_string }}
+                <li>
+                    <input type="text" placeholder="..." name="page" class="form-control" style="width: 50px; float: left; margin-left: 10px;">
+                    <button class="btn btn-default" type="submit">跳转</button>
+                </li>
+            </ul>
+        </form>
+    </nav>
+    
+</div>
+{% endblock %}

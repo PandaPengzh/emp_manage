@@ -1,0 +1,291 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <!-- Button-->
+    <button type="button" class="btn btn-primary" id="buttonadd">
+        点我弹框添加数据
+    </button>
+
+    <!-- Modal 弹框(添加) -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加数据</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- form表单 -->
+                    <form id="formAdd">
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        <span class="error-msg" style="color: red;position: absolute;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="buttonsave">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 弹框(删除) -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除？</h4>
+                <p style="margin: 10px 0;"> 删除后，所有关联的相关数据都会被删除。</p>
+                <p style="text-align: right;">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">确 定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 弹框(编辑) -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">编辑数据</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- form表单 -->
+                    <form id="formEdit">
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        <span class="error-msg" style="color: red;position: absolute;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="buttonedit">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据库中的数据展示 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            订单列表
+        </div>
+        <!-- Table -->
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>订单号</th>
+                <th>商品</th>
+                <th>分类</th>
+                <th>价格</th>
+                <th>支付日期</th>
+                <th>状态</th>
+                <th>处理员工</th>
+                <th>操作</th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in queryset %}
+                <tr>
+                    <th>{{ obj.id }}</th>
+                    <th>{{ obj.oid }}</th>
+                    <td>{{ obj.title }}</td>
+                    <td>{{ obj.category }}</td>
+                    <td>{{ obj.price }}</td>
+                    <td>{{ obj.create_time }}</td>
+                    <td>{{ obj.get_status_display }}</td>
+                    <td>{{ obj.emp.name }}</td>
+                    <td>
+                        <button uid="{{ obj.id }}" type="button" class="btn btn-danger btn-sm buttondelete">删除</button>
+                        <button uid="{{ obj.id }}" type="button" class="btn btn-primary btn-sm buttonedit">编辑</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <nav aria-label="Page navigation">
+        <form method="get">
+            <ul class="pagination" style="margin: 50px 350px;">
+                {{ page_string }}
+                <li>
+                    <input type="text" placeholder="..." name="page" class="form-control" style="width: 50px; float: left; margin-left: 10px;">
+                    <button class="btn btn-default" type="submit">跳转</button>
+                </li>
+            </ul>
+        </form>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script type="text/javascript">
+    // 配置全局变量
+    var DELETE_UID  
+    var EDIT_UID
+
+    $(function(){
+        buttonAdd()
+        buttonSaveDate()
+        buttonDelete()
+        buttonDeleteDate()
+        buttonedit()
+        buttoneditDate()
+    })
+
+    // 点击显示添加数据的弹框
+    function buttonAdd(){
+        $('#buttonadd').click(function(){
+            $('#myModal').modal('show')
+            // 清空表单
+            // $(':input').val('')
+        })
+    }
+
+    // 点击确认保存数据
+    function buttonSaveDate(){
+        $('#buttonsave').click(function(){
+            $('.error-msg').empty()   // 清空错误信息
+            $.ajax({
+                url:"/order/add/",
+                type:"post",
+                data:$("#formAdd").serialize(),
+                dataType:"JSON",
+                success:function(res){
+                    if(res.status) {
+                        alert('小可爱，恭喜你添加成功！')
+                        // $(':input').val('')    // 清空表单中所有的数据
+                        // $("#formAdd")[0].reset();   // 清空表单  $("#formAdd")是jQuery对象 -> $("#formAdd")[0] DOM对象
+                        $('#myModal').modal('hide')  // 添加完成自动隐藏
+                        location.reload();  // 用JS实现页面的刷新
+                    }
+                    else{
+                        $.each(res.error,function(key,value){  // 循环输出错误信息
+                            // console.log(k,v[0])  title 这个字段是必填项
+                            $('#id_' + key).next().text(value[0]);
+                        })
+                    }
+                }
+            })
+        })
+    }
+    
+    // 点击显示删除数据的弹框
+    function buttonDelete(){
+        $('.buttondelete').click(function(){
+            $('#deleteModal').modal('show')
+
+            DELETE_UID=$(this).attr('uid')   // this指的是.buttondelete对应的那个按钮
+            // console.log(DELETE_UID)
+        })
+    }
+
+    // 点击确认删除数据
+    function buttonDeleteDate(){
+        $('#btnConfirmDelete').click(function(){
+            $.ajax({
+                url:"/order/delete/",   // 请求会自动携带参数：/order/delete/?uid='xx'
+                type:'get',
+                dataType:"JSON",
+                data:{
+                    uid:DELETE_UID
+                },
+                success:function(res) {
+                    if(res.status){
+                        alert('恭喜你，删除字段成功了'),
+                        $('#deleteModal').modal('hide'),
+                        location.reload()
+                    }
+                    else(
+                        alert(res.error),
+                        $('#deleteModal').modal('hide')
+                    )
+                }
+            })
+        })
+    }
+   
+    // 点击显示编辑数据的弹框（并带上原来的数据）
+    function buttonedit(){
+        $('.buttonedit').click(function(){
+            // 获取id
+            EDIT_UID = $(this).attr('uid')
+
+            $.ajax({
+                url:"/order/edit/",
+                type:"get",
+                data:{
+                    uid:EDIT_UID
+                },
+                dataType:'JSON',
+                success:function(res){
+                    if(res.status) {
+                        // 请求成功，展示弹框
+                        $('#editModal').modal('show')
+                        $.each(res.data,function(key,value){
+                            $('#formEdit #id_' + key).val(value)   // 多级定位
+                        })
+                    }
+                    else(
+                        alert(res.error)
+                    )
+                }
+            })
+        })
+    }
+
+    // 点击确认保存编辑的数据
+    function buttoneditDate(){
+        $('#buttonedit').click(function(){
+            $('#formEdit .error-msg').empty()   // 清空错误信息
+            $.ajax({
+                url:"/order/editsave/?uid=" + `${EDIT_UID}`,
+                type:"post",
+                data:$('#formEdit').serialize(),  // 获取表格中的数据
+                dataType:'JSON',
+                success:function(res){
+                    if(res.status) {
+                        $('#editModal').modal('hide')
+                        location.reload()
+                    }
+                    else{
+                        $.each(res.error,(key,value)=>{
+                            $('#formEdit #id_' + key).next().text(value[0])
+                        })
+                    }
+                }
+            })
+        })
+    }
+
+</script>
+
+{% endblock %}

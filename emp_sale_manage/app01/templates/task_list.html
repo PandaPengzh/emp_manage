@@ -1,0 +1,115 @@
+{% extends 'layout.html' %} 
+{% block content %}
+
+<div class="container">
+    <div class="panel panel-info box">
+        <div class="panel-heading">
+            <h3 class="panel-title" style="text-align: center; font-weight: bold;">任务页面</h3>
+        </div>
+        <div class="panel-body">
+            <!-- 表单 -->
+            <form id="form4">
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">{{ field.label }}</label> {{ field }}
+                    <!-- 错误信息 -->
+                    <span style="color:red;"></span>
+                </div>
+                {% endfor %}
+                <button type="button" class="btn btn-success" id="btn4">提交</button>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+    <!-- 数据展示 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            任务列表
+        </div>
+        <!-- Table -->
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>标题</th>
+                <th>详情</th>
+                <th>级别</th>
+                <th>员工</th>
+                <th>负责人</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in queryset %}
+                <tr>
+                    <th>{{ obj.id }}</th>
+                    <td>{{ obj.title }}</td>
+                    <td>{{ obj.detail }}</td>
+                    <td>{{ obj.get_level_display }}</td>
+                    <td>{{ obj.emp.name }}</td>
+                    <td>{{ obj.admin.username }}</td>
+                    <td>
+                        <a class="btn btn-danger btn-xs" href="http://127.0.0.1:8000/task/{{ obj.id }}/delete/">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <nav aria-label="Page navigation">
+        <form method="get">
+            <ul class="pagination" style="margin: 50px 400px;">
+                {{ page_string }}
+                <li>
+                    <input type="text" placeholder="..." name="page" class="form-control" style="width: 50px; float: left; margin-left: 10px;">
+                    <button class="btn btn-default" type="submit">跳转</button>
+                </li>
+            </ul>
+        </form>
+    </nav>
+
+</div>
+
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    $(function(){
+        // 页面框架加载完之后代码自动执行
+        taskAddEvent()
+    })
+
+       // 绑定第四个按钮
+    function taskAddEvent(){
+    $('#btn4').click(function(){   
+        // 发起一个ajax请求
+        $.ajax({
+            url:'/task/add/',
+            type:'post',
+            data:$("#form4").serialize(),  // 获取到表单中每个字段的数据
+            dataType:"JSON",   // 反序列化，让res输出的是对象
+            success:function(res){  // 返回的是请求的回调
+                if(res.status==true) {
+                    alert('添加成功！')
+                    // 用JS实现页面的刷新
+                    location.reload();
+                }
+                else {
+                    $.each(res.error,function(key,value){
+                        // console.log(key,value)  // 错误的键与值
+                        $('#id_'+key).next().text(value[0]);  // 定位到表单下的span显示错误信息
+                    })
+                }
+            }
+        })
+    })
+}
+
+    
+</script>
+{% endblock %} 

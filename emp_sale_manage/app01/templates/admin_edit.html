@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- 面板 + 表单 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form method="post" action="http://127.0.0.1:8000/admin/{{ row_object.id }}/edit/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">修改用户名</label>
+                    <input type="text" name="username" class="form-control" id="exampleInputEmail1" value="{{ row_object.username }}">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">修改密码</label>
+                    <input type="text" name="password" class="form-control" id="exampleInputEmail1" value="{{ row_object.password }}">
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

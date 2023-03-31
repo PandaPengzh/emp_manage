@@ -1,0 +1,19 @@
+{% extends 'layout.html' %} {% block content %}
+<!-- 面板 + 表单 -->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> 添加部门
+        </div>
+        <div class="panel-body">
+            <form method="post" action="http://127.0.0.1:8000/depart/add/">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="title" class="form-control" id="exampleInputEmail1" placeholder="部门">
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

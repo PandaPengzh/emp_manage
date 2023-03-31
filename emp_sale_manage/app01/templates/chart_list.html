@@ -1,0 +1,533 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/reset.css' %}">
+{% endblock %}
+
+
+<!-- html代码 -->
+{% block content %}
+<div class="chartWarp userWarp">
+    <div class="pure-g user-row1">
+        <div class="pure-u-7-24 col2">
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">销售金额前五</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="lossGrowth" class="chartDiv"></div>
+                </div>
+            </div>
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">不同类型的商品库存数量</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="cSorNum" class="chartDiv"></div>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-10-24">
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">商品名称和商品数量数据</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="userGroup" class="chartDiv"></div>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-7-24 col2">
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">用户分群数据</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="pInterval" class="chartDiv"></div>
+                </div>
+            </div>
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">各类商品存货周转天数</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="expLoc" class="chartDiv"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pure-g user-row2">
+        <div class="pure-u-12-24">
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">不同地点售货机销售数据</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="expTime" class="chartDiv"></div>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-12-24">
+            <div class="chartBlock">
+                <div class="hd">
+                    <div class="chartTit">
+                        <h2 class="titContent">不同地点售货机库存数量和缺货数量</h2>
+                    </div>
+                </div>
+                <div class="bd">
+                    <div id="userHot" class="chartDiv"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+<!-- js代码 -->
+{% block js %}
+<!-- 引入echart代码 -->
+<script src="{% static 'js/echarts.min.js' %}"></script>
+<!-- 词云js -->
+<script src="{% static 'js/echarts-wordcloud.js' %}"></script>
+<!-- 主题 -->
+<script src="{% static 'theme/wonderland.js' %}"></script>
+<script src="{% static 'theme/purple-passion.js' %}"></script>
+
+<script language="javascript" type="text/javascript">
+    // 绘制图表1-漏斗图
+    var lossGrowth = echarts.init(document.getElementById('lossGrowth'), 'wonderland');
+    $.get("http://127.0.0.1:8000/static/json/3-用户类型及人数.json").done(function (res) {
+        lossGrowth.setOption(
+            {
+                title: {
+
+                    top: -10,
+                    right: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                },
+
+                series: [
+                    {
+                        name: 'Funnel',
+                        type: 'funnel',
+                        top: 30,
+                        bottom: 10,
+                        min: 0,
+                        max: 1000,
+                        minSize: '0%',
+                        maxSize: '100%',
+                        sort: 'descending',
+                        gap: 2,
+                        label: {
+                            show: true,
+                            position: 'inside'
+                        },
+                        labelLine: {
+                            length: 10,
+                            lineStyle: {
+                                width: 1,
+                                type: 'solid'
+                            }
+                        },
+                        itemStyle: {
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        },
+                        emphasis: {
+                            label: {
+                                fontSize: 20
+                            }
+                        },
+                        data: res.data
+                    }
+                ]
+            }
+        );
+    });
+
+
+    //绘制图表2-堆叠柱状图
+    var cSorNum = echarts.init(document.getElementById('userHot'), 'purple-passion');
+    $.get("http://127.0.0.1:8000/static/json/1-不同地点售货机库存数量和缺货数量.json").done(function (res) {
+        cSorNum.setOption({
+            title: {
+
+                left: 'center',
+                top: '-16px'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                top: '10%',
+                left: '0%',
+                bottom: '0%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: res.地点,
+                    axisLabel: {
+                        color: '#868A98'
+                    }
+                },
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#868A98'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '库存数量',
+                    type: 'bar',
+                    stack: 'Ad',
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: res.库存数量
+                },
+                {
+                    name: '缺货数量',
+                    type: 'bar',
+                    stack: 'Ad',
+                    data: res.缺货数量,
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    markLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        },
+                        data: [[{ type: 'min' }, { type: 'max' }]]
+                    }
+                },
+            ]
+        });
+    });
+
+
+    // 绘制图表3-堆叠饼图
+    var userGroup = echarts.init(document.getElementById('cSorNum'), 'wonderland');
+    $.get("http://127.0.0.1:8000/static/json/2-不同类型的商品库存数量.json").done(function (res) {
+        userGroup.setOption({
+            title: {
+
+                right: 'center',
+                top: '-15px'
+            },
+            tooltip: {},
+            series: [
+                {
+                    name: '一级商品',
+                    type: 'pie',
+                    selectedMode: 'single',
+                    radius: [0, '30%'],
+                    label: {
+                        position: 'inner',
+                        fontSize: 10
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: res.一级商品
+                },
+                {
+                    name: '二级商品',
+                    type: 'pie',
+                    radius: ['45%', '60%'],
+                    labelLine: {
+                        length: 15
+                    },
+
+                    data: res.二级商品
+                }
+            ]
+        });
+    });
+
+
+    // 绘制图表4-折线面积图
+    var pInterval = echarts.init(document.getElementById('expTime'));
+    $.get("http://127.0.0.1:8000/static/json/1-不同地点售货机销售数据.json").done(function (res) {
+        pInterval.setOption({
+            title: {
+
+                right: 'center',
+                top: '-16px'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            grid: {
+                left: '0%',
+                right: '2%',
+                bottom: '0%',
+                top: '10%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: res.地点,
+                    axisLabel: {
+                        color: '#868A98'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#868A98'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '销售金额',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: '#88CAC1'
+                            },
+                            {
+                                offset: 1,
+                                color: '#88CAC1'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: res.销售金额
+                },
+                {
+                    name: '订单额',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: '#66E2CF'
+                            },
+                            {
+                                offset: 1,
+                                color: '#66E2CF'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: res.订单量
+                },
+                {
+                    name: '毛利润',
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: '#AAF2CA'
+                            },
+                            {
+                                offset: 1,
+                                color: '#AAF2CA'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: res.毛利润
+                },
+
+            ]
+        });
+    });
+
+
+    // 绘制图表5-矩形树图
+    var expLoc = echarts.init(document.getElementById('expLoc'), 'purple-passion');
+    $.get("http://127.0.0.1:8000/static/json/2-各类商品存货周转天数.json").done(function (res) {
+        expLoc.setOption({
+            title: {
+
+                left: 'center',
+                top: '-16px'
+            },
+            series: [
+                {
+                    type: 'treemap',
+                    data: [
+                        {
+                            name: 'nodeA',
+                            children: res.data,
+                            // itemStyle:{
+                            // 	color:'#BE949A'
+                            // }
+                        }
+                    ]
+                }
+            ]
+        });
+    });
+
+
+
+    // 绘制图表6-雷达图
+    var expTime = echarts.init(document.getElementById('pInterval'), 'purple-passion');
+    $.get("http://127.0.0.1:8000/static/json/3-用户分群数据.json").done(function (res) {
+        expTime.setOption({
+            title: {
+
+                left: 'right'
+            },
+            tooltip: {},
+            radar: {
+                // shape: 'circle',
+                indicator: [
+                    { name: res.title[0], max: 80 },
+                    { name: res.title[1], max: 80 },
+                    { name: res.title[2], max: 80 },
+                    { name: res.title[3], max: 80 },
+                    { name: res.title[4], max: 80 },
+                ],
+                center: ['50%', '60%'],   // 中心点的位置
+                radius: '80%',
+                nameGap: 7
+            },
+            series: [
+                {
+                    name: 'Budget vs spending',
+                    type: 'radar',
+                    data: res.data
+                }
+            ],
+        });
+    });
+
+
+    // 绘制图表7-词云图
+    var userHot = echarts.init(document.getElementById('userGroup'));
+    $.get("http://127.0.0.1:8000/static/json/2-商品名称和商品数量数据.json").done(function (res) {
+        userHot.setOption({
+            title: {
+                left: 'center',
+                top: 10
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (item) {
+                    return item.name + "：" + item.value.toFixed(2);
+                }
+            },
+            series: [{
+                type: 'wordCloud',
+                sizeRange: [20, 150],
+                rotationRange: [-90, 90],
+                rotationStep: 45,
+                gridSize: 20,
+                autoSize: {
+                    enable: true,
+                    minSize: 5
+                },
+                shape: 'roundRect',
+                left: 'center',
+                top: 5,
+                bottom: 10,
+                width: '100%',
+                height: '100%',
+                right: null,
+                bottom: null,
+                textStyle: {
+                    fontWeight: 'bold',
+                    color: function () {
+                        return 'rgb(' + [
+                            Math.round(Math.random() * 200) + 50,
+                            Math.round(Math.random() * 50),
+                            Math.round(Math.random() * 50) + 50
+                        ].join(',') + ')';
+                    }
+                },
+                emphasis: {
+                    textStyle: {
+                        color: '#528'
+                    }
+                },
+                data: res.data.sort(function (a, b) {
+                    return b.value - a.value;
+                })
+            }]
+        });
+    });
+
+    window.onresize = function () {
+        cSorNum.resize();
+        lossGrowth.resize();
+        expTime.resize();
+        expLoc.resize();
+        pInterval.resize();
+        userGroup.resize();
+        userHot.resize();
+    };
+
+</script>
+{% endblock %}
